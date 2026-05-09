@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Quiz App - Result</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -10,8 +11,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -26,29 +27,39 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.1);
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.1) 0%, transparent 50%);
             z-index: 1;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2),
+                        0 0 40px rgba(102, 126, 234, 0.1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             text-align: center;
             position: relative;
             z-index: 2;
-            animation: slideIn 0.6s ease-out;
-            max-width: 500px;
-            width: 100%;
+            animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 800px;
+            width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-30px) scale(0.95);
+                transform: translateY(-50px) scale(0.9);
             }
             to {
                 opacity: 1;
@@ -59,101 +70,326 @@
         h2 {
             color: #333;
             margin-bottom: 30px;
-            font-size: 36px;
-            font-weight: 600;
+            font-size: 42px;
+            font-weight: 700;
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0) rotateZ(-45deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1) rotateZ(10deg);
+            }
+            100% {
+                transform: scale(1) rotateZ(0deg);
+                opacity: 1;
+            }
         }
 
         .score-display {
-            font-size: 72px;
-            font-weight: 700;
-            color: #667eea;
+            font-size: 100px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 30px;
-            text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-            animation: scorePulse 2s ease-in-out infinite;
+            text-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+            animation: scoreReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        @keyframes scorePulse {
-            0%, 100% {
-                transform: scale(1);
+        @keyframes scoreReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotateY(180deg);
             }
-            50% {
-                transform: scale(1.05);
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0);
             }
+        }
+
+        .quiz-info {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .quiz-info strong {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f2ff 100%);
+            padding: 24px 20px;
+            border-radius: 20px;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            transition: all 0.6s ease;
+            z-index: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-card:hover::before {
+            top: -25%;
+            right: -25%;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            color: #333;
+            font-weight: 800;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stat-card.correct { background: linear-gradient(135deg, #d9f7e9 0%, #c8f2dd 100%); }
+        .stat-card.correct .stat-value { color: #28a745; }
+
+        .stat-card.wrong { background: linear-gradient(135deg, #fde2e4 0%, #fcd5d9 100%); }
+        .stat-card.wrong .stat-value { color: #dc3545; }
+
+        .stat-card.percentage { background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); }
+        .stat-card.percentage .stat-value { color: #ff9800; }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(240, 147, 251, 0.03) 100%);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px dashed rgba(102, 126, 234, 0.1);
         }
 
         .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 40px;
         }
 
-        a {
-            display: inline-block;
-            padding: 16px 30px;
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-decoration: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
             text-align: center;
+            border: 2px solid transparent;
+            cursor: pointer;
         }
 
-        a::before {
+        .action-btn::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+            z-index: 1;
         }
 
-        a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        .action-btn > * {
+            position: relative;
+            z-index: 2;
         }
 
-        a:hover::before {
+        .action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-btn:hover::before {
             left: 100%;
+        }
+
+        .action-btn.certificate {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .action-btn.history {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+
+        .action-btn.leaderboard {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: #333;
+        }
+
+        .action-btn.stats {
+            background: linear-gradient(135deg, #e83e8c 0%, #c2185b 100%);
         }
 
         .logout-link {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 25px;
+            right: 25px;
             color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            font-weight: 500;
-            padding: 12px 20px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
             z-index: 3;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .logout-link:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             color: white;
             transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .answers-section {
+            margin-top: 50px;
+            text-align: left;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .answers-section h3 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .answer-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 16px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .answer-item:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .answer-item.correct {
+            border-left-color: #28a745;
+            background: rgba(40, 167, 69, 0.03);
+        }
+
+        .answer-item.wrong {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.03);
+        }
+
+        .answer-question {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .answer-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .answer-detail {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+        }
+
+        .answer-detail-label {
+            color: #888;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .answer-detail-value {
+            color: #333;
+            font-weight: 700;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 30px;
-                margin: 20px;
+                padding: 30px 20px;
+                border-radius: 20px;
+                max-height: 90vh;
             }
 
             h2 {
@@ -161,79 +397,167 @@
             }
 
             .score-display {
-                font-size: 56px;
+                font-size: 70px;
             }
 
-            a {
-                padding: 14px 25px;
-                font-size: 16px;
+            .success-icon {
+                font-size: 50px;
             }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .actions {
+                grid-template-columns: 1fr;
+            }
+
+            .action-btn {
+                padding: 16px 24px;
+                font-size: 14px;
+            }
+
+            .logout-link {
+                padding: 10px 16px;
+                font-size: 12px;
+                top: 15px;
+                right: 15px;
+            }
+
+            .answers-section {
+                padding: 20px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .score-display {
+                font-size: 50px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
         }
     </style>
 </head>
 <body>
     <div class="background-overlay"></div>
     <div class="container">
+        <i class="fas fa-check-circle success-icon"></i>
         <h2>Quiz Complete!</h2>
         <div class="score-display">{{ score }}</div>
+        
         {% if level or category %}
-        <p style="color:#555; margin-bottom:16px;">Level: <strong>{{ level|capitalize if level else '—' }}</strong> | Category: <strong>{{ category if category else 'All' }}</strong></p>
-        {% endif %}
-        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:30px;">
-            <div style="background:#f1f4ff; padding:18px 24px; border-radius:16px; min-width:160px;">
-                <div style="font-size:14px; color:#666; margin-bottom:8px;">Questions</div>
-                <div style="font-size:28px; color:#333; font-weight:700;">{{ total_questions }}</div>
-            </div>
-            <div style="background:#d9f7e9; padding:18px 24px; border-radius:16px; min-width:160px;">
-                <div style="font-size:14px; color:#666; margin-bottom:8px;">Correct</div>
-                <div style="font-size:28px; color:#28a745; font-weight:700;">{{ correct_count }}</div>
-            </div>
-            <div style="background:#fde2e4; padding:18px 24px; border-radius:16px; min-width:160px;">
-                <div style="font-size:14px; color:#666; margin-bottom:8px;">Wrong</div>
-                <div style="font-size:28px; color:#dc3545; font-weight:700;">{{ wrong_count }}</div>
-            </div>
-        </div>
-        <canvas id="performanceChart" width="400" height="250" style="max-width:100%; margin-bottom:30px;"></canvas>
-        {% if answers %}
-        <div style="margin-top:30px; text-align:left;">
-            <h3 style="color:#333; margin-bottom:18px;">Review Answers</h3>
-            <div style="overflow-x:auto;">
-                <table style="width:100%; border-collapse:collapse;">
-                    <thead>
-                        <tr style="background:#f0f2ff;">
-                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Question</th>
-                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Your Answer</th>
-                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Correct Answer</th>
-                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Points</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in answers %}
-                        <tr style="background:{{ 'rgba(46, 204, 113, 0.08)' if item.is_correct else 'rgba(231, 76, 60, 0.08)' }};">
-                            <td style="padding:14px; vertical-align:top;">{{ item.question }}</td>
-                            <td style="padding:14px; vertical-align:top;">{{ item.selected or 'No answer' }}</td>
-                            <td style="padding:14px; vertical-align:top;">{{ item.correct }}</td>
-                            <td style="padding:14px; vertical-align:top;">{{ '+' if item.points > 0 else '' }}{{ item.points }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="quiz-info">
+            Level: <strong>{{ level|capitalize if level else '—' }}</strong> | Category: <strong>{{ category if category else 'All' }}</strong>
         </div>
         {% endif %}
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-label">Total Questions</div>
+                <div class="stat-value">{{ total_questions }}</div>
+            </div>
+            <div class="stat-card correct">
+                <div class="stat-label">Correct</div>
+                <div class="stat-value">{{ correct_count }}</div>
+            </div>
+            <div class="stat-card wrong">
+                <div class="stat-label">Wrong</div>
+                <div class="stat-value">{{ wrong_count }}</div>
+            </div>
+            <div class="stat-card percentage">
+                <div class="stat-label">Percentage</div>
+                <div class="stat-value">{% if total_questions > 0 %}{{ ((correct_count/total_questions)*100)|round(1) }}{% else %}0{% endif %}%</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="performanceChart" style="max-width:100%;"></canvas>
+        </div>
+
         <div class="actions">
-            <a href="/quiz_history">View Quiz History</a>
-            <a href="/leaderboard">View Leaderboard</a>
-            <a href="/category_leaderboard">Category Stats</a>
+            <a href="/download_certificate" class="action-btn certificate">
+                <i class="fas fa-file-pdf"></i> Download Certificate
+            </a>
+            <a href="/quiz_history" class="action-btn history">
+                <i class="fas fa-history"></i> Quiz History
+            </a>
+            <a href="/leaderboard" class="action-btn leaderboard">
+                <i class="fas fa-trophy"></i> Leaderboard
+            </a>
+            <a href="/category_leaderboard" class="action-btn stats">
+                <i class="fas fa-chart-bar"></i> Category Stats
+            </a>
         </div>
+
+        {% if answers %}
+        <div class="answers-section">
+            <h3><i class="fas fa-list-check"></i> Answer Review</h3>
+            {% for item in answers %}
+            <div class="answer-item {{ 'correct' if item.is_correct else 'wrong' }}">
+                <div class="answer-question">
+                    <i class="fas {{ 'fa-check-circle' if item.is_correct else 'fa-times-circle' }}" style="margin-right: 10px; color: {{ '#28a745' if item.is_correct else '#dc3545' }};"></i>
+                    {{ item.question }}
+                </div>
+                <div class="answer-details">
+                    <div class="answer-detail">
+                        <div class="answer-detail-label">Your Answer</div>
+                        <div class="answer-detail-value">{{ item.selected or 'No answer' }}</div>
+                    </div>
+                    <div class="answer-detail">
+                        <div class="answer-detail-label">Correct Answer</div>
+                        <div class="answer-detail-value">{{ item.correct }}</div>
+                    </div>
+                    <div class="answer-detail">
+                        <div class="answer-detail-label">Points</div>
+                        <div class="answer-detail-value" style="color: {{ '#28a745' if item.points > 0 else '#dc3545' }};">
+                            {{ '+' if item.points > 0 else '' }}{{ item.points }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
-    <a href="/logout" class="logout-link">Logout</a>
+
+    <a href="/logout" class="logout-link">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const answersCount = {{ total_questions }};
         const correctCount = {{ correct_count }};
         const wrongCount = {{ wrong_count }};
         const ctx = document.getElementById('performanceChart').getContext('2d');
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(40, 167, 69, 0.1)');
+        gradient.addColorStop(1, 'rgba(40, 167, 69, 0)');
+        
         new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -242,15 +566,20 @@
                     data: [correctCount, wrongCount],
                     backgroundColor: ['#28a745', '#dc3545'],
                     borderColor: ['#ffffff', '#ffffff'],
-                    borderWidth: 2
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { color: '#333' }
+                        labels: { 
+                            color: '#333',
+                            font: { size: 14, weight: 'bold' },
+                            padding: 20
+                        }
                     }
                 }
             }
