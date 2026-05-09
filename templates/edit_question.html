@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz App - Edit Question</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .container { width:100%; max-width:600px; background:rgba(255,255,255,0.96); border-radius:24px; padding:32px; box-shadow:0 20px 40px rgba(0,0,0,0.12); border:1px solid rgba(255,255,255,0.25); }
+        h2 { margin-bottom:22px; color:#333; text-align:center; }
+        .form-group { margin-bottom:18px; }
+        input, select { width:100%; padding:14px 18px; border:2px solid #e9ecef; border-radius:14px; font-size:16px; background:#fdfdfe; }
+        button { width:100%; padding:16px; border:none; border-radius:14px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; font-size:18px; font-weight:700; cursor:pointer; }
+        .back-link { display:inline-block; margin-top:18px; color:#333; text-decoration:none; font-weight:600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Question</h2>
+        <form method="post">
+            <div class="form-group">
+                <input name="q" value="{{ question[1] }}" required>
+            </div>
+            <div class="form-group">
+                <input name="op1" value="{{ question[2] }}" required>
+            </div>
+            <div class="form-group">
+                <input name="op2" value="{{ question[3] }}" required>
+            </div>
+            <div class="form-group">
+                <input name="op3" value="{{ question[4] }}" required>
+            </div>
+            <div class="form-group">
+                <input name="op4" value="{{ question[5] }}" required>
+            </div>
+            <div class="form-group">
+                <input name="ans" value="{{ question[6] }}" required>
+            </div>
+            <div class="form-group">
+                <select name="category" required>
+                    <option value="General" {% if question[8] == 'General' %}selected{% endif %}>General</option>
+                    <option value="Aptitude" {% if question[8] == 'Aptitude' %}selected{% endif %}>Aptitude</option>
+                    <option value="Science" {% if question[8] == 'Science' %}selected{% endif %}>Science</option>
+                    <option value="Math" {% if question[8] == 'Math' %}selected{% endif %}>Math</option>
+                    <option value="Python" {% if question[8] == 'Python' %}selected{% endif %}>Python</option>
+                    <option value="C" {% if question[8] == 'C' %}selected{% endif %}>C</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="level" required>
+                    <option value="easy" {% if question[7] == 'easy' %}selected{% endif %}>Easy</option>
+                    <option value="medium" {% if question[7] == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="hard" {% if question[7] == 'hard' %}selected{% endif %}>Hard</option>
+                </select>
+            </div>
+            <button type="submit">Save Changes</button>
+        </form>
+        <a class="back-link" href="/manage_questions">← Back to Manage Questions</a>
+    </div>
+</body>
+</html>

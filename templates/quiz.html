@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz App - Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .feedback {
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 25px;
+            animation: feedbackSlide 0.5s ease-out;
+            border: 2px solid;
+        }
+
+        @keyframes feedbackSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            color: #28a745;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+        }
+
+        .feedback.wrong {
+            color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-color: #dc3545;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+        }
+
+        .options {
+            margin-bottom: 30px;
+        }
+
+        .option {
+            display: block;
+            margin: 12px 0;
+            padding: 18px 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #fff;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+            accent-color: #667eea;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f2ff, #e8ecff);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .logout-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            z-index: 3;
+            font-size: 14px;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 20px;
+                border-radius: 15px;
+            }
+
+            h3 {
+                font-size: 20px;
+            }
+
+            .option {
+                padding: 15px 20px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <div class="question-counter">Question {{ question_number }} of {{ total_questions }}</div>
+        <div style="text-align:center; color:#555; font-size:16px; margin-bottom:12px;">
+            Level: <strong>{{ level|capitalize }}</strong> | Category: <strong>{{ category }}</strong>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ (question_number / total_questions * 100 )}}%"> </div>
+        </div>
+        <div id="timer" style="text-align: center; color: #333; font-size: 20px; font-weight: bold; margin-bottom: 16px;">Time left: {{ remaining_time }} seconds</div>
+        <div style="text-align:center; color:#555; font-size:14px; margin-bottom:20px;">Correct: +1 point, Wrong: {{ negative_mark }} point</div>
+        {% if feedback %}
+        <div class="feedback {% if 'Correct!' in feedback %}correct{% else %}wrong{% endif %}">
+            {{ feedback }}
+        </div>
+        {% endif %}
+
+        <h3>{{ q[1] }}</h3>
+
+        <form method="post" class="options">
+            <label class="option">
+                <input type="radio" name="answer" value="{{ q[2] }}">
+                {{ q[2] }}
+            </label>
+            <label class="option">
+                <input type="radio" name="answer" value="{{ q[3] }}">
+                {{ q[3] }}
+            </label>
+            <label class="option">
+                <input type="radio" name="answer" value="{{ q[4] }}">
+                {{ q[4] }}
+            </label>
+            <label class="option">
+                <input type="radio" name="answer" value="{{ q[5] }}">
+                {{ q[5] }}
+            </label>
+            <button type="submit">Submit Answer</button>
+        </form>
+    </div>
+    <a href="/logout" class="logout-link">Logout</a>
+
+    <script>
+        let timeLeft = {{ remaining_time }};
+        const timerElement = document.getElementById('timer');
+        const form = document.querySelector('form');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = `Time left: ${timeLeft} seconds`;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                form.submit();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

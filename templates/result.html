@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz App - Result</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            animation: slideIn 0.6s ease-out;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 36px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-display {
+            font-size: 72px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+            animation: scorePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scorePulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 16px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        a:hover::before {
+            left: 100%;
+        }
+
+        .logout-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            z-index: 3;
+            font-size: 14px;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+                margin: 20px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .score-display {
+                font-size: 56px;
+            }
+
+            a {
+                padding: 14px 25px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <h2>Quiz Complete!</h2>
+        <div class="score-display">{{ score }}</div>
+        {% if level or category %}
+        <p style="color:#555; margin-bottom:16px;">Level: <strong>{{ level|capitalize if level else '—' }}</strong> | Category: <strong>{{ category if category else 'All' }}</strong></p>
+        {% endif %}
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:30px;">
+            <div style="background:#f1f4ff; padding:18px 24px; border-radius:16px; min-width:160px;">
+                <div style="font-size:14px; color:#666; margin-bottom:8px;">Questions</div>
+                <div style="font-size:28px; color:#333; font-weight:700;">{{ total_questions }}</div>
+            </div>
+            <div style="background:#d9f7e9; padding:18px 24px; border-radius:16px; min-width:160px;">
+                <div style="font-size:14px; color:#666; margin-bottom:8px;">Correct</div>
+                <div style="font-size:28px; color:#28a745; font-weight:700;">{{ correct_count }}</div>
+            </div>
+            <div style="background:#fde2e4; padding:18px 24px; border-radius:16px; min-width:160px;">
+                <div style="font-size:14px; color:#666; margin-bottom:8px;">Wrong</div>
+                <div style="font-size:28px; color:#dc3545; font-weight:700;">{{ wrong_count }}</div>
+            </div>
+        </div>
+        <canvas id="performanceChart" width="400" height="250" style="max-width:100%; margin-bottom:30px;"></canvas>
+        {% if answers %}
+        <div style="margin-top:30px; text-align:left;">
+            <h3 style="color:#333; margin-bottom:18px;">Review Answers</h3>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f0f2ff;">
+                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Question</th>
+                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Your Answer</th>
+                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Correct Answer</th>
+                            <th style="padding:14px; text-align:left; border-bottom:2px solid #e9ecef;">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in answers %}
+                        <tr style="background:{{ 'rgba(46, 204, 113, 0.08)' if item.is_correct else 'rgba(231, 76, 60, 0.08)' }};">
+                            <td style="padding:14px; vertical-align:top;">{{ item.question }}</td>
+                            <td style="padding:14px; vertical-align:top;">{{ item.selected or 'No answer' }}</td>
+                            <td style="padding:14px; vertical-align:top;">{{ item.correct }}</td>
+                            <td style="padding:14px; vertical-align:top;">{{ '+' if item.points > 0 else '' }}{{ item.points }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        <div class="actions">
+            <a href="/quiz_history">View Quiz History</a>
+            <a href="/leaderboard">View Leaderboard</a>
+            <a href="/category_leaderboard">Category Stats</a>
+        </div>
+    </div>
+    <a href="/logout" class="logout-link">Logout</a>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const answersCount = {{ total_questions }};
+        const correctCount = {{ correct_count }};
+        const wrongCount = {{ wrong_count }};
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Correct', 'Wrong'],
+                datasets: [{
+                    data: [correctCount, wrongCount],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    borderColor: ['#ffffff', '#ffffff'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#333' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

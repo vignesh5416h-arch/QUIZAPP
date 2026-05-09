@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz App - Create Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 2;
+            animation: slideIn 0.6s ease-out;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input::placeholder {
+            color: #adb5bd;
+        }
+
+        .question-input {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .question-input:focus {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .option-input {
+            position: relative;
+        }
+
+        .option-input::before {
+            content: attr(data-option);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 1;
+        }
+
+        .option-input input {
+            padding-left: 50px;
+        }
+
+        .correct-answer-input {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(34, 197, 94, 0.05));
+            border-color: rgba(40, 167, 69, 0.2);
+        }
+
+        .correct-answer-input:focus {
+            border-color: #28a745;
+            background: white;
+        }
+
+        .correct-answer-input::before {
+            content: '✓';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 1;
+        }
+
+        .correct-answer-input input {
+            padding-left: 50px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            text-align: center;
+            font-weight: 500;
+            animation: messageSlide 0.5s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: linear-gradient(135deg, #5a6268, #6c757d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .logout-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            z-index: 3;
+            font-size: 14px;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            input {
+                padding: 12px 16px;
+                font-size: 15px;
+            }
+
+            .option-input::before,
+            .correct-answer-input::before {
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
+            }
+
+            .option-input input,
+            .correct-answer-input input {
+                padding-left: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <h2>Add New Question</h2>
+
+        {% if request.method == 'POST' %}
+        <div class="success-message">
+            ✅ Question added successfully!
+        </div>
+        {% endif %}
+
+        <form method="post">
+            <div class="form-group">
+                <input name="q" class="question-input" placeholder="Enter your question here..." required>
+            </div>
+
+            <div class="form-group">
+                <div class="option-input" data-option="A">
+                    <input name="op1" placeholder="Option A" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="option-input" data-option="B">
+                    <input name="op2" placeholder="Option B" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="option-input" data-option="C">
+                    <input name="op3" placeholder="Option C" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="option-input" data-option="D">
+                    <input name="op4" placeholder="Option D" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="correct-answer-input">
+                    <input name="ans" placeholder="Correct answer (must match one of the options above)" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <select name="category" style="width: 100%; padding: 15px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; background: #f8f9fa;" required>
+                    <option value="General">General</option>
+                    <option value="Aptitude">Aptitude</option>
+                    <option value="Science">Science</option>
+                    <option value="Math">Math</option>
+                    <option value="Python">Python</option>
+                    <option value="C">C</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <select name="level" style="width: 100%; padding: 15px 20px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; background: #f8f9fa;" required>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+
+            <button type="submit">Add Question</button>
+        </form>
+
+        <a href="/admin" class="back-link">← Back to Admin Panel</a>
+    </div>
+    <a href="/logout" class="logout-link">Logout</a>
+</body>
+</html>
