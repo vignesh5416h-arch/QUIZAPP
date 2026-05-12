@@ -289,15 +289,15 @@
                     </td>
                     <td>
                         <span class="level-badge level-{{ entry[2] }}">
-                            {{ entry[2] }}
+                            {{ entry[2] or 'Unknown' }}
                         </span>
                     </td>
                     <td>
                         <span class="category-badge">
-                            {{ entry[3] }}
+                            {{ entry[3] or 'General' }}
                         </span>
                     </td>
-                    <td>{{ entry[4] }}</td>
+                    <td>{{ entry[4] or 0 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -86,6 +86,22 @@
             animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        .correct-icon {
+            color: #28a745;
+        }
+
+        .wrong-icon {
+            color: #dc3545;
+        }
+
+        .answer-detail-value.positive {
+            color: #28a745;
+        }
+
+        .answer-detail-value.negative {
+            color: #dc3545;
+        }
+
         @keyframes popIn {
             0% {
                 transform: scale(0) rotateZ(-45deg);
@@ -265,10 +281,6 @@
 
         .action-btn:hover::before {
             left: 100%;
-        }
-
-        .action-btn.certificate {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
 
         .action-btn.history {
@@ -494,13 +506,10 @@
         </div>
         
         <div class="chart-container">
-            <canvas id="performanceChart" style="max-width:100%;"></canvas>
+            <canvas id="performanceChart" style="max-width:100%;" data-total="{{ total_questions }}" data-correct="{{ correct_count }}" data-wrong="{{ wrong_count }}"></canvas>
         </div>
 
         <div class="actions">
-            <a href="/download_certificate" class="action-btn certificate">
-                <i class="fas fa-file-pdf"></i> Download Certificate
-            </a>
             <a href="/quiz_history" class="action-btn history">
                 <i class="fas fa-history"></i> Quiz History
             </a>
@@ -518,7 +527,7 @@
             {% for item in answers %}
             <div class="answer-item {{ 'correct' if item.is_correct else 'wrong' }}">
                 <div class="answer-question">
-                    <i class="fas {{ 'fa-check-circle' if item.is_correct else 'fa-times-circle' }}" style="margin-right: 10px; color: {{ '#28a745' if item.is_correct else '#dc3545' }};"></i>
+                    <i class="fas {{ 'fa-check-circle' if item.is_correct else 'fa-times-circle' }} {{ 'correct-icon' if item.is_correct else 'wrong-icon' }}" style="margin-right: 10px;"></i>
                     {{ item.question }}
                 </div>
                 <div class="answer-details">
@@ -532,7 +541,7 @@
                     </div>
                     <div class="answer-detail">
                         <div class="answer-detail-label">Points</div>
-                        <div class="answer-detail-value" style="color: {{ '#28a745' if item.points > 0 else '#dc3545' }};">
+                        <div class="answer-detail-value {{ 'positive' if item.points > 0 else 'negative' }}">
                             {{ '+' if item.points > 0 else '' }}{{ item.points }}
                         </div>
                     </div>
@@ -549,9 +558,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const answersCount = {{ total_questions }};
-        const correctCount = {{ correct_count }};
-        const wrongCount = {{ wrong_count }};
+        const perfData = document.getElementById('performanceChart').dataset;
+        const answersCount = Number(perfData.total || 0);
+        const correctCount = Number(perfData.correct || 0);
+        const wrongCount = Number(perfData.wrong || 0);
         const ctx = document.getElementById('performanceChart').getContext('2d');
         
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);

@@ -1,23 +1,11 @@
-from flask import Flask, render_template, request, redirect, session, url_for, send_file
+from flask import Flask, render_template, request, redirect, session, url_for
 import sqlite3
 import random
 from datetime import datetime
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-from io import BytesIO
 import os
-from urllib.parse import quote
 
 app = Flask(__name__)
 app.secret_key = "secret123"
-
-# Create certificates directory if it doesn't exist
-if not os.path.exists('certificates'):
-    os.makedirs('certificates')
 
 # ---------------- DATABASE ----------------
 def init_db():
@@ -27,7 +15,6 @@ def init_db():
     cur.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT, attempts INTEGER DEFAULT 0)")
     cur.execute("CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY, question TEXT, op1 TEXT, op2 TEXT, op3 TEXT, op4 TEXT, answer TEXT, level TEXT DEFAULT 'easy', category TEXT DEFAULT 'General')")
     cur.execute("CREATE TABLE IF NOT EXISTS scores (id INTEGER PRIMARY KEY, username TEXT, score REAL, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, level TEXT, category TEXT, total_questions INTEGER)")
-    cur.execute("CREATE TABLE IF NOT EXISTS certificates (id INTEGER PRIMARY KEY, username TEXT, score REAL, level TEXT, category TEXT, certificate_date TEXT, quiz_date TEXT)")
 
     # Default admin
     cur.execute("INSERT OR IGNORE INTO users (id, username, password, role, attempts) VALUES (1, 'admin', 'admin123', 'admin', 0)")
@@ -104,171 +91,6 @@ def get_categories():
     if not categories:
         categories = ["General", "Aptitude", "Science", "Math", "Python", "C"]
     return categories
-
-# Certificate Generation Function
-def generate_certificate_pdf(username, score, level, category, total_questions, correct_count, timestamp):
-    """Generate a professional certificate PDF and return it as bytes"""
-    try:
-        # Create PDF in memory
-        pdf_buffer = BytesIO()
-        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter, topMargin=0.3*inch, bottomMargin=0.3*inch)
-        elements = []
-        
-        # Define styles
-        styles = getSampleStyleSheet()
-        
-        # Main title style
-        title_style = ParagraphStyle(
-            'CertTitle',
-            parent=styles['Heading1'],
-            fontSize=52,
-            textColor=colors.HexColor('#667eea'),
-            spaceAfter=6,
-            alignment=TA_CENTER,
-            fontName='Helvetica-Bold',
-            letterSpacing=2
-        )
-        
-        # Subtitle style
-        subtitle_style = ParagraphStyle(
-            'CertSubtitle',
-            parent=styles['Normal'],
-            fontSize=18,
-            textColor=colors.HexColor('#764ba2'),
-            spaceAfter=30,
-            alignment=TA_CENTER,
-            fontName='Helvetica-Bold'
-        )
-        
-        # Body style
-        body_style = ParagraphStyle(
-            'CertBody',
-            parent=styles['Normal'],
-            fontSize=16,
-            textColor=colors.HexColor('#444444'),
-            spaceAfter=12,
-            alignment=TA_CENTER,
-            fontName='Helvetica',
-            leading=20
-        )
-        
-        # Name style (highlighted)
-        name_style = ParagraphStyle(
-            'CertName',
-            parent=styles['Normal'],
-            fontSize=28,
-            textColor=colors.HexColor('#667eea'),
-            spaceAfter=20,
-            alignment=TA_CENTER,
-            fontName='Helvetica-Bold',
-            letterSpacing=1
-        )
-        
-        # Decorative line (using table)
-        line_table = Table([[''], ], colWidths=[6*inch])
-        line_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#667eea')),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ROWHEIGHTS', (0, 0), (-1, -1), 3),
-        ]))
-        
-        # Add certificate header
-        elements.append(Spacer(1, 0.5*inch))
-        elements.append(Paragraph("CERTIFICATE OF ACHIEVEMENT", title_style))
-        elements.append(line_table)
-        elements.append(Spacer(1, 0.4*inch))
-        
-        # Main certificate text
-        elements.append(Paragraph("This is proudly awarded to", body_style))
-        elements.append(Spacer(1, 0.15*inch))
-        elements.append(Paragraph(f"<b>{username.upper()}</b>", name_style))
-        
-        elements.append(Spacer(1, 0.2*inch))
-        elements.append(Paragraph(
-            f"for successfully completing the <b>{category}</b> Quiz<br/>at <b>{level.upper()}</b> difficulty level",
-            body_style
-        ))
-        
-        elements.append(Spacer(1, 0.3*inch))
-        
-        # Performance metrics table
-        percentage = (correct_count/total_questions)*100
-        achievement_text = ""
-        if percentage >= 90:
-            achievement_text = "Excellent Performance!"
-        elif percentage >= 75:
-            achievement_text = "Very Good Performance!"
-        elif percentage >= 60:
-            achievement_text = "Good Performance!"
-        else:
-            achievement_text = "Certificate of Completion"
-        
-        elements.append(Paragraph(achievement_text, ParagraphStyle(
-            'Achievement',
-            parent=styles['Normal'],
-            fontSize=14,
-            textColor=colors.HexColor('#28a745'),
-            alignment=TA_CENTER,
-            fontName='Helvetica-Bold'
-        )))
-        
-        elements.append(Spacer(1, 0.25*inch))
-        
-        # Score details in table
-        score_data = [
-            ['Score', 'Correct', 'Total', 'Percentage'],
-            [f'{score:.2f} / {total_questions}', f'{correct_count}', f'{total_questions}', f'{percentage:.1f}%']
-        ]
-        
-        score_table = Table(score_data, colWidths=[1.3*inch]*4)
-        score_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 13),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 14),
-            ('TOPPADDING', (0, 0), (-1, 0), 10),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0f2ff')),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#333333')),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 1), (-1, -1), 12),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 12),
-            ('TOPPADDING', (0, 1), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 2, colors.HexColor('#667eea')),
-            ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.HexColor('#f0f2ff'), colors.white]),
-        ]))
-        
-        elements.append(score_table)
-        elements.append(Spacer(1, 0.4*inch))
-        
-        # Decorative line
-        elements.append(line_table)
-        
-        elements.append(Spacer(1, 0.2*inch))
-        
-        # Footer with date and seal
-        footer_style = ParagraphStyle(
-            'Footer',
-            parent=styles['Normal'],
-            fontSize=11,
-            textColor=colors.HexColor('#666666'),
-            alignment=TA_CENTER,
-            spaceAfter=5
-        )
-        
-        elements.append(Paragraph(f"Awarded on {timestamp}", footer_style))
-        elements.append(Paragraph("🎓 Quiz Application - Your Learning, Our Pride", footer_style))
-        
-        # Build PDF
-        doc.build(elements)
-        pdf_buffer.seek(0)
-        return pdf_buffer
-    except Exception as e:
-        print(f"Error generating certificate: {e}")
-        return None
 
 # ---------------- LOGIN ----------------
 @app.route("/", methods=["GET", "POST"])
@@ -531,12 +353,11 @@ def result():
     correct_count = sum(1 for answer in answers if answer.get("is_correct", False))
     wrong_count = total_questions - correct_count
     
-    # Render template first, then clear session
+    # Render template first, then clear only quiz-related session data
     response_html = render_template("result.html", score=score, answers=answers, level=level, category=category, 
                          total_questions=total_questions, correct_count=correct_count, wrong_count=wrong_count)
-    
-    # Clear session after rendering
-    session.clear()
+    for key in ["qno", "score", "feedback", "answers", "questions", "level", "category"]:
+        session.pop(key, None)
     return response_html
 
 # ---------------- LEADERBOARD ----------------
@@ -558,8 +379,8 @@ def quiz_history():
     
     conn = sqlite3.connect("quiz.db")
     cur = conn.cursor()
-    # Only get records that have complete data (newer records with timestamp, level, category, total_questions)
-    cur.execute("SELECT timestamp, score, level, category, total_questions FROM scores WHERE username=? AND timestamp IS NOT NULL ORDER BY timestamp DESC", (session["user"],))
+    # Use defaults for older records that may be missing category/level/total_questions
+    cur.execute("SELECT timestamp, score, COALESCE(level, 'Unknown'), COALESCE(category, 'General'), COALESCE(total_questions, 0) FROM scores WHERE username=? AND timestamp IS NOT NULL ORDER BY timestamp DESC", (session["user"],))
     history_data = cur.fetchall()
     conn.close()
 
@@ -571,8 +392,8 @@ def category_leaderboard():
     conn = sqlite3.connect("quiz.db")
     cur = conn.cursor()
     
-    # Get all categories that have scores
-    cur.execute("SELECT DISTINCT category FROM scores WHERE category IS NOT NULL ORDER BY category")
+    # Get all categories that have scores, using defaults for older records
+    cur.execute("SELECT DISTINCT COALESCE(category, 'General') FROM scores ORDER BY 1")
     categories = [row[0] for row in cur.fetchall()]
     
     # Get leaderboard data for each category
@@ -581,7 +402,7 @@ def category_leaderboard():
         cur.execute("""
             SELECT username, MAX(score) as max_score, COUNT(*) as attempts
             FROM scores 
-            WHERE category=? 
+            WHERE COALESCE(category, 'General')=? 
             GROUP BY username 
             ORDER BY max_score DESC, attempts DESC
             LIMIT 10
@@ -591,50 +412,6 @@ def category_leaderboard():
     conn.close()
     
     return render_template("category_leaderboard.html", category_data=category_data, categories=categories)
-# ----------------CERTIFICATE DOWNLOAD ----------------
-@app.route("/download_certificate")
-def download_certificate():
-    if "user" not in session:
-        return redirect("/")
-    
-    username = session.get("user")
-    score = session.get("score", 0)
-    level = session.get("level", "")
-    category = session.get("category", "")
-    answers = session.get("answers", [])
-    
-    if not answers:
-        return redirect("/student_panel")
-    
-    total_questions = len(answers)
-    correct_count = sum(1 for answer in answers if answer.get("is_correct", False))
-    timestamp = datetime.now().strftime("%B %d, %Y")
-    
-    # Generate PDF certificate
-    pdf_buffer = generate_certificate_pdf(username, score, level, category, total_questions, correct_count, timestamp)
-    
-    if pdf_buffer:
-        # Store certificate info in database
-        try:
-            conn = sqlite3.connect("quiz.db")
-            cur = conn.cursor()
-            cur.execute("INSERT INTO certificates (username, score, level, category, certificate_date, quiz_date) VALUES (?, ?, ?, ?, ?, ?)",
-                       (username, score, level, category, timestamp, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"Error storing certificate info: {e}")
-        
-        # Return PDF file
-        pdf_buffer.seek(0)
-        return send_file(
-            pdf_buffer,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name=f"certificate_{username}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        )
-    
-    return redirect("/result")
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():

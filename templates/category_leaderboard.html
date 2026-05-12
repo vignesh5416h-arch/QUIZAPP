@@ -245,11 +245,6 @@
         <h1>Category Leaderboards</h1>
 
         {% if category_data %}
-        <div style="padding: 20px; background: #f0f0f0; margin: 20px; border-radius: 10px;">
-            <h2>Debug Information:</h2>
-            <p>Categories: {{ categories }}</p>
-            <p>Category data keys: {{ category_data.keys() }}</p>
-        </div>
         <div class="category-grid">
             {% for category in categories %}
             <div class="category-card">

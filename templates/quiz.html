@@ -264,9 +264,9 @@
             Level: <strong>{{ level|capitalize }}</strong> | Category: <strong>{{ category }}</strong>
         </div>
         <div class="progress-bar">
-            <div class="progress-fill" style="width: {{ (question_number / total_questions * 100 )}}%"> </div>
+            <div class="progress-fill" data-width="{{ (question_number / total_questions * 100 )}}"> </div>
         </div>
-        <div id="timer" style="text-align: center; color: #333; font-size: 20px; font-weight: bold; margin-bottom: 16px;">Time left: {{ remaining_time }} seconds</div>
+        <div id="timer" data-remaining="{{ remaining_time }}" style="text-align: center; color: #333; font-size: 20px; font-weight: bold; margin-bottom: 16px;">Time left: {{ remaining_time }} seconds</div>
         <div style="text-align:center; color:#555; font-size:14px; margin-bottom:20px;">Correct: +1 point, Wrong: {{ negative_mark }} point</div>
         {% if feedback %}
         <div class="feedback {% if 'Correct!' in feedback %}correct{% else %}wrong{% endif %}">
@@ -299,9 +299,13 @@
     <a href="/logout" class="logout-link">Logout</a>
 
     <script>
-        let timeLeft = {{ remaining_time }};
         const timerElement = document.getElementById('timer');
+        let timeLeft = Number(timerElement.dataset.remaining || 0);
         const form = document.querySelector('form');
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            progressFill.style.width = `${progressFill.dataset.width || 0}%`;
+        }
 
         const countdown = setInterval(() => {
             timeLeft--;
